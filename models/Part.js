@@ -31,17 +31,19 @@ const PartSchema = new Schema({
   },
   shippingConcern: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   specialNotes: {
     type: Boolean,
-    required: true
+    required: true,
+    default: false
   },
   MG3: {
     type: String,
     required: true
   },
-  imageURL: {
+  image: {
     type: String
   },
   info: {
