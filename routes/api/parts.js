@@ -29,13 +29,13 @@ router.get("/", (req, res) => {
 //TODO: Get Part by PartNum
 
 // @route   POST api/part
-// @desc    Create or Edit the current logged in user's profile
+// @desc    Create or Edit a part
 // @access  Private
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
-    const { errors, isValid } = validateProfileInput(req.body);
+    const { errors, isValid } = validatePartInput(req.body);
 
     // Check Validation
     if (!isValid) {
@@ -44,28 +44,25 @@ router.post(
     }
 
     // Get fields
-    const profileFields = {};
-    profileFields.user = req.user.id;
-    if (req.body.handle) profileFields.handle = req.body.handle;
-    if (req.body.company) profileFields.company = req.body.company;
-    if (req.body.website) profileFields.website = req.body.website;
-    if (req.body.location) profileFields.location = req.body.location;
-    if (req.body.bio) profileFields.bio = req.body.bio;
-    if (req.body.status) profileFields.status = req.body.status;
-    if (req.body.githubusername)
-      profileFields.githubusername = req.body.githubusername;
-    // Skills - Split into array
-    if (typeof req.body.skills !== "undefined") {
-      profileFields.skills = req.body.skills.split(",");
-    }
+    const partFields = {};
+    partFields.user = req.user.id;
+    if (req.body.partNumber) profileFields.partNumber = req.body.partNumber;
+    if (req.body.description) profileFields.description = req.body.description;
+    if (req.body.weight) profileFields.weight = req.body.weight;
+    if (req.body.shippingConcern)
+      profileFields.shippingConcern = req.body.shippingConcern;
+    if (req.body.specialNotes)
+      profileFields.specialNotes = req.body.specialNotes;
+    if (req.body.MG3) profileFields.MG3 = req.body.MG3;
+    if (req.body.image) profileFields.image = req.body.image;
+    if (req.body.notice) profileFields.notice = req.body.notice;
 
-    // Social
-    profileFields.social = {};
-    if (req.body.youtube) profileFields.social.youtube = req.body.youtube;
-    if (req.body.twitter) profileFields.social.twitter = req.body.twitter;
-    if (req.body.facebook) profileFields.social.facebook = req.body.facebook;
-    if (req.body.linkedin) profileFields.social.linkedin = req.body.linkedin;
-    if (req.body.instagram) profileFields.social.instagram = req.body.instagram;
+    // Pricing
+    partFields.pricing = {};
+    if (req.body.list) profileFields.pricing.list = req.body.list;
+    if (req.body.repair) profileFields.pricing.repair = req.body.repair;
+    if (req.body.exchange) profileFields.pricing.exchange = req.body.exchange;
+    if (req.body.credit) profileFields.pricing.credit = req.body.credit;
 
     Profile.findOne({ user: req.user.id }).then(profile => {
       if (profile) {

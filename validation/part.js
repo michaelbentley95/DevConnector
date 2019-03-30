@@ -1,7 +1,7 @@
 const Validator = require("validator");
 const isEmpty = require("./is-empty");
 
-module.exports = function validateProfileInput(data) {
+module.exports = function validatePartInput(data) {
   let errors = {};
 
   //Sets data.name to an empty string if it wasn't set. This is because Validator.isEmpty only works on strings and not null or undefined.

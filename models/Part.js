@@ -46,7 +46,10 @@ const PartSchema = new Schema({
   image: {
     type: String
   },
-  info: {
+  notice: {
+    type: String
+  },
+  successor: {
     type: String
   },
   lastUpdated: {
