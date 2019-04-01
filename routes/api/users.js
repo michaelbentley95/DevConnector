@@ -172,10 +172,10 @@ router.post("/forgotPassword", (req, res) => {
 router.get("/resetPassword/:token", (req, res) => {
   User.findOne({ resetPasswordToken: req.params.token }).then(user => {
     if (!user || user.resetPasswordExpires < Date.now()) {
-      res.status(404).json({ valid: false });
+      res.json({ validToken: false });
     } else {
       res.json({
-        valid: true
+        validToken: true
       });
     }
   });

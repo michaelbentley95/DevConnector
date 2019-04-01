@@ -68,7 +68,7 @@ export const forgotPassword = userData => dispatch => {
     );
 };
 
-//Forgot Password - Send Reset Email
+//Checks the validity of the reset password token and stores it in the errors store
 export const checkResetToken = token => dispatch => {
   dispatch(clearErrors());
   dispatch(clearSuccess());
@@ -76,7 +76,7 @@ export const checkResetToken = token => dispatch => {
     .get(`/api/users/resetPassword/${token}`)
     .then(res =>
       dispatch({
-        type: GET_SUCCESS,
+        type: GET_ERRORS,
         payload: res.data
       })
     )

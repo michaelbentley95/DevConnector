@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { resetPassword, checkResetToken } from "../../actions/authActions";
+import { checkResetToken } from "../../actions/authActions";
 import TextFieldGroup from "../common/TextFieldGroup";
-import classnames from "classnames";
 
 class ResetPassword extends Component {
   constructor() {
@@ -19,10 +18,6 @@ class ResetPassword extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
-  validToken(token) {
-    this.props.checkResetToken(token);
-  }
-
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
@@ -35,12 +30,18 @@ class ResetPassword extends Component {
     if (!this.props.match.params.token) {
       this.props.history.push("/login");
     }
+    this.props.checkResetToken(this.props.match.params.token);
   }
 
   //Sets the component state of errors using the state delivered through the props from redux
   componentWillReceiveProps(nextProps) {
     if (nextProps.auth.isAuthenticated) {
       this.props.history.push("/dashboard");
+    }
+
+    //If the token is not valid, send the user back to the login screen
+    if (nextProps.errors.validToken === false) {
+      this.props.history.push("/login");
     }
 
     if (nextProps.errors) {
@@ -67,7 +68,7 @@ class ResetPassword extends Component {
   }
 
   render() {
-    const { errors, success } = this.state;
+    const { errors } = this.state;
 
     return (
       <div className="resetPassword">
@@ -106,7 +107,7 @@ class ResetPassword extends Component {
 }
 
 ResetPassword.propTypes = {
-  resetPassword: PropTypes.func.isRequired,
+  checkResetToken: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   success: PropTypes.object.isRequired
@@ -120,5 +121,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { resetPassword }
+  { checkResetToken }
 )(ResetPassword);
