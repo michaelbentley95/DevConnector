@@ -88,6 +88,26 @@ export const checkResetToken = token => dispatch => {
     );
 };
 
+//Reset Password - Set new password for user
+export const resetPassword = (userData, token) => dispatch => {
+  dispatch(clearErrors());
+  dispatch(clearSuccess());
+  axios
+    .put(`/api/users/resetPassword/${token}`, userData)
+    .then(res =>
+      dispatch({
+        type: GET_SUCCESS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
 //Set logged in user
 export const setCurrentUser = decoded => {
   return {

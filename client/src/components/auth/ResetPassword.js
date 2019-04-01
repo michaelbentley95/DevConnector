@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { checkResetToken } from "../../actions/authActions";
+import { checkResetToken, resetPassword } from "../../actions/authActions";
 import TextFieldGroup from "../common/TextFieldGroup";
 
 class ResetPassword extends Component {
@@ -49,7 +49,7 @@ class ResetPassword extends Component {
     }
 
     if (nextProps.success) {
-      this.setState({ success: nextProps.success });
+      //this.props.history.push("/login");
     }
   }
 
@@ -59,12 +59,11 @@ class ResetPassword extends Component {
     this.setState({ errors: {}, success: {} });
 
     const userData = {
-      token: this.props.match.params.token,
       password: this.state.password,
       password2: this.state.password2
     };
 
-    this.props.resetPassword(userData);
+    this.props.resetPassword(userData, this.props.match.params.token);
   }
 
   render() {
@@ -108,6 +107,7 @@ class ResetPassword extends Component {
 
 ResetPassword.propTypes = {
   checkResetToken: PropTypes.func.isRequired,
+  resetPassword: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   success: PropTypes.object.isRequired
@@ -121,5 +121,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { checkResetToken }
+  { checkResetToken, resetPassword }
 )(ResetPassword);

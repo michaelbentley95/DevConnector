@@ -133,10 +133,6 @@ router.post("/forgotPassword", (req, res) => {
       //Create reset hex token and register it to the user
       const token = crypto.randomBytes(20).toString("hex");
 
-      user.resetPasswordToken = token;
-      user.resetPasswordExpires = Date.now() + 3600000; //Expire the reset token after one hour
-      user.save();
-
       //Create Email Transport
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -158,6 +154,9 @@ router.post("/forgotPassword", (req, res) => {
           errors.email = err;
           return res.status(400).json(errors);
         }
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; //Expire the reset token after one hour
+        user.save();
         res.json({
           reset: "Check your inbox for a password reset email"
         });
@@ -181,10 +180,10 @@ router.get("/resetPassword/:token", (req, res) => {
   });
 });
 
-// @route   POST api/users/resetPassword/:token
-// @desc    Reset the user's password based on the token sent to them in the reset email
+// @route   PUT api/users/resetPassword/:token
+// @desc    Update user's password using the reset token
 // @access  Public
-router.post("/resetPassword/:token", (req, res) => {
+router.put("/resetPassword/:token", (req, res) => {
   const { errors, isValid } = validateResetPasswordInput(req.body);
 
   //Check Validation
@@ -193,42 +192,20 @@ router.post("/resetPassword/:token", (req, res) => {
   }
 
   User.findOne({ resetPasswordToken: req.params.token }).then(user => {
-    if (!user) {
-      res.status(404).json({ profile: "There is no profile for this user" });
-    } else {
-      //Create reset hex token and register it to the user
-      const token = crypto.randomBytes(20).toString("hex");
-
-      user.resetPasswordToken = token;
-      user.resetPasswordExpires = Date.now() + 3600000; //Expire the reset token after one hour
-      user.save();
-
-      //Create Email Transport
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: keys.emailFrom,
-          pass: keys.emailPassword
-        }
-      });
-
-      const mailOptions = {
-        from: `fidelcastrator@gmail.com`,
-        to: `${user.email}`,
-        subject: `Link to Reset Password`,
-        text: `This is test text. Here's your link: \n\n http://localhost:3000/reset/${token}`
-      };
-
-      transporter.sendMail(mailOptions, function(err, response) {
-        if (err) {
-          errors.email = err;
-          return res.status(400).json(errors);
-        }
-        res.json({
-          reset: "Check your inbox for a password reset email"
-        });
-      });
+    if (!user || user.resetPasswordExpires < Date.now()) {
+      return res.status(400).json({ validToken: false });
     }
+
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(req.body.password, salt, (err, hash) => {
+        if (err) throw err;
+        user.password = hash;
+        user
+          .save()
+          .then(user => res.json(user))
+          .catch(err => console.log(err));
+      });
+    });
   });
 });
 
