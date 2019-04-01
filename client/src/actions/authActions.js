@@ -2,7 +2,13 @@ import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
 
-import { GET_ERRORS, SET_CURRENT_USER } from "./types";
+import {
+  GET_ERRORS,
+  GET_SUCCESS,
+  SET_CURRENT_USER,
+  CLEAR_ERRORS,
+  CLEAR_SUCCESS
+} from "./types";
 
 //Register User
 //The dispatch thing means that this is an async function since we have to wait for MongoDB to respond
@@ -42,6 +48,46 @@ export const loginUser = userData => dispatch => {
     );
 };
 
+//Forgot Password - Send Reset Email
+export const forgotPassword = userData => dispatch => {
+  dispatch(clearErrors());
+  dispatch(clearSuccess());
+  axios
+    .post("/api/users/forgotPassword", userData)
+    .then(res =>
+      dispatch({
+        type: GET_SUCCESS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
+//Forgot Password - Send Reset Email
+export const checkResetToken = token => dispatch => {
+  dispatch(clearErrors());
+  dispatch(clearSuccess());
+  axios
+    .get(`/api/users/resetPassword/${token}`)
+    .then(res =>
+      dispatch({
+        type: GET_SUCCESS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
+};
+
 //Set logged in user
 export const setCurrentUser = decoded => {
   return {
@@ -58,4 +104,18 @@ export const logoutUser = () => dispatch => {
   setAuthToken(false);
   //Set current user to {} which will also set isAuthenticated to false
   dispatch(setCurrentUser({}));
+};
+
+//Clear errors
+export const clearErrors = () => {
+  return {
+    type: CLEAR_ERRORS
+  };
+};
+
+//Clear success
+export const clearSuccess = () => {
+  return {
+    type: CLEAR_SUCCESS
+  };
 };

@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { loginUser } from "../../actions/authActions";
+import { forgotPassword } from "../../actions/authActions";
 import TextFieldGroup from "../common/TextFieldGroup";
+import classnames from "classnames";
 
-class Login extends Component {
+class ForgotPassword extends Component {
   constructor() {
     super();
     this.state = {
       email: "",
-      password: "",
+      success: {},
       errors: {}
     };
 
@@ -38,29 +38,35 @@ class Login extends Component {
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
     }
+
+    if (nextProps.success) {
+      this.setState({ success: nextProps.success });
+    }
   }
 
   onSubmit(e) {
     e.preventDefault();
+
+    this.setState({ errors: {}, success: {} });
+
     const userData = {
-      email: this.state.email,
-      password: this.state.password
+      email: this.state.email
     };
 
-    this.props.loginUser(userData);
+    this.props.forgotPassword(userData);
   }
 
   render() {
-    const { errors } = this.state;
+    const { errors, success } = this.state;
 
     return (
-      <div className="login">
+      <div className="forgotPassword">
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
-              <h1 className="display-4 text-center">Log In</h1>
+              <h1 className="display-4 text-center">Forgot Password</h1>
               <p className="lead text-center">
-                Sign in to your DevConnector account
+                Send an email to reset password
               </p>
               <form noValidate onSubmit={this.onSubmit}>
                 <TextFieldGroup
@@ -71,19 +77,15 @@ class Login extends Component {
                   onChange={this.onChange}
                   error={errors.email}
                 />
-                <TextFieldGroup
-                  placeholder="Password"
-                  name="password"
-                  type="password"
-                  value={this.state.password}
-                  onChange={this.onChange}
-                  error={errors.password}
+                <input
+                  type="submit"
+                  className={classnames("btn btn-info btn-block mt-4", {
+                    "d-none": success.reset //if success.reset exists, then it includes "is-invalid" as a class
+                  })}
+                  value="Send Reset Email"
                 />
-                <input type="submit" className="btn btn-info btn-block mt-4" />
-                <Link to="/forgotPassword" className="text-muted">
-                  Forgot Password
-                </Link>
               </form>
+              <h5 className="text-muted">{success.reset}</h5>
             </div>
           </div>
         </div>
@@ -92,18 +94,20 @@ class Login extends Component {
   }
 }
 
-Login.propTypes = {
-  loginUser: PropTypes.func.isRequired,
+ForgotPassword.propTypes = {
+  forgotPassword: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
-  errors: PropTypes.object.isRequired
+  errors: PropTypes.object.isRequired,
+  success: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  errors: state.errors
+  errors: state.errors,
+  success: state.success
 });
 
 export default connect(
   mapStateToProps,
-  { loginUser }
-)(Login);
+  { forgotPassword }
+)(ForgotPassword);

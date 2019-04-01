@@ -1,21 +1,26 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { loginUser } from "../../actions/authActions";
+import { resetPassword, checkResetToken } from "../../actions/authActions";
 import TextFieldGroup from "../common/TextFieldGroup";
+import classnames from "classnames";
 
-class Login extends Component {
+class ResetPassword extends Component {
   constructor() {
     super();
     this.state = {
-      email: "",
       password: "",
+      password2: "",
+      success: {},
       errors: {}
     };
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  validToken(token) {
+    this.props.checkResetToken(token);
   }
 
   onChange(e) {
@@ -26,6 +31,9 @@ class Login extends Component {
   componentDidMount() {
     if (this.props.auth.isAuthenticated) {
       this.props.history.push("/dashboard");
+    }
+    if (!this.props.match.params.token) {
+      this.props.history.push("/login");
     }
   }
 
@@ -38,39 +46,39 @@ class Login extends Component {
     if (nextProps.errors) {
       this.setState({ errors: nextProps.errors });
     }
+
+    if (nextProps.success) {
+      this.setState({ success: nextProps.success });
+    }
   }
 
   onSubmit(e) {
     e.preventDefault();
+
+    this.setState({ errors: {}, success: {} });
+
     const userData = {
-      email: this.state.email,
-      password: this.state.password
+      token: this.props.match.params.token,
+      password: this.state.password,
+      password2: this.state.password2
     };
 
-    this.props.loginUser(userData);
+    this.props.resetPassword(userData);
   }
 
   render() {
-    const { errors } = this.state;
+    const { errors, success } = this.state;
 
     return (
-      <div className="login">
+      <div className="resetPassword">
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
-              <h1 className="display-4 text-center">Log In</h1>
+              <h1 className="display-4 text-center">Reset Password</h1>
               <p className="lead text-center">
-                Sign in to your DevConnector account
+                Set new password for your account
               </p>
               <form noValidate onSubmit={this.onSubmit}>
-                <TextFieldGroup
-                  placeholder="Email Address"
-                  name="email"
-                  type="email"
-                  value={this.state.email}
-                  onChange={this.onChange}
-                  error={errors.email}
-                />
                 <TextFieldGroup
                   placeholder="Password"
                   name="password"
@@ -79,10 +87,15 @@ class Login extends Component {
                   onChange={this.onChange}
                   error={errors.password}
                 />
+                <TextFieldGroup
+                  placeholder="Confirm Password"
+                  name="password2"
+                  type="password"
+                  value={this.state.password2}
+                  onChange={this.onChange}
+                  error={errors.password2}
+                />
                 <input type="submit" className="btn btn-info btn-block mt-4" />
-                <Link to="/forgotPassword" className="text-muted">
-                  Forgot Password
-                </Link>
               </form>
             </div>
           </div>
@@ -92,18 +105,20 @@ class Login extends Component {
   }
 }
 
-Login.propTypes = {
-  loginUser: PropTypes.func.isRequired,
+ResetPassword.propTypes = {
+  resetPassword: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
-  errors: PropTypes.object.isRequired
+  errors: PropTypes.object.isRequired,
+  success: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  errors: state.errors
+  errors: state.errors,
+  success: state.success
 });
 
 export default connect(
   mapStateToProps,
-  { loginUser }
-)(Login);
+  { resetPassword }
+)(ResetPassword);
