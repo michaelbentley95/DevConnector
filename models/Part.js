@@ -11,20 +11,6 @@ const PartSchema = new Schema({
     type: String,
     required: true
   },
-  pricing: {
-    list: {
-      type: Number
-    },
-    repair: {
-      type: Number
-    },
-    exchange: {
-      type: Number
-    },
-    credit: {
-      type: Number
-    }
-  },
   weight: {
     type: Number,
     required: true
@@ -55,6 +41,20 @@ const PartSchema = new Schema({
   lastUpdated: {
     type: Date,
     default: Date.now
+  },
+  pricing: {
+    list: {
+      type: Number
+    },
+    repair: {
+      type: Number
+    },
+    exchange: {
+      type: Number
+    },
+    credit: {
+      type: Number
+    }
   }
 });
 

@@ -48,8 +48,9 @@ class ResetPassword extends Component {
       this.setState({ errors: nextProps.errors });
     }
 
-    if (nextProps.success) {
-      //this.props.history.push("/login");
+    //If the api returns an _id in success, then password was updated. Send them back to login.
+    if (nextProps.success._id) {
+      this.props.history.push("/login");
     }
   }
 

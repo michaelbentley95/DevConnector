@@ -5,8 +5,6 @@ const passport = require("passport");
 
 //Part model
 const Part = require("../../models/Part");
-//Profile model
-const Profile = require("../../models/Profile");
 
 //Validation
 const validatePartInput = require("../../validation/part");
@@ -46,63 +44,37 @@ router.post(
     // Get fields
     const partFields = {};
     partFields.user = req.user.id;
-    if (req.body.partNumber) profileFields.partNumber = req.body.partNumber;
-    if (req.body.description) profileFields.description = req.body.description;
-    if (req.body.weight) profileFields.weight = req.body.weight;
+    if (req.body.partNumber) partFields.partNumber = req.body.partNumber;
+    if (req.body.description) partFields.description = req.body.description;
+    if (req.body.weight) partFields.weight = req.body.weight;
     if (req.body.shippingConcern)
-      profileFields.shippingConcern = req.body.shippingConcern;
-    if (req.body.specialNotes)
-      profileFields.specialNotes = req.body.specialNotes;
-    if (req.body.MG3) profileFields.MG3 = req.body.MG3;
-    if (req.body.image) profileFields.image = req.body.image;
-    if (req.body.notice) profileFields.notice = req.body.notice;
+      partFields.shippingConcern = req.body.shippingConcern;
+    if (req.body.specialNotes) partFields.specialNotes = req.body.specialNotes;
+    if (req.body.MG3) partFields.MG3 = req.body.MG3;
+    if (req.body.image) partFields.image = req.body.image;
+    if (req.body.notice) partFields.notice = req.body.notice;
+    if (req.body.successor) partFields.successor = req.body.successor;
 
     // Pricing
     partFields.pricing = {};
-    if (req.body.list) profileFields.pricing.list = req.body.list;
-    if (req.body.repair) profileFields.pricing.repair = req.body.repair;
-    if (req.body.exchange) profileFields.pricing.exchange = req.body.exchange;
-    if (req.body.credit) profileFields.pricing.credit = req.body.credit;
+    if (req.body.list) partFields.pricing.list = req.body.list;
+    if (req.body.repair) partFields.pricing.repair = req.body.repair;
+    if (req.body.exchange) partFields.pricing.exchange = req.body.exchange;
+    if (req.body.credit) partFields.pricing.credit = req.body.credit;
 
-    Profile.findOne({ user: req.user.id }).then(profile => {
-      if (profile) {
-        //If profile exists, then Update
-        Profile.findOneAndUpdate(
-          { user: req.user.id },
-          { $set: profileFields },
-          { new: true }
-        ).then(profile => res.json(profile));
-      } else {
-        //Save Profile
-        new Profile(profileFields).save().then(profile => res.json(profile));
+    // Check if partNumber exists
+    Part.findOne({ partNumber: partFields.partNumber }).then(part => {
+      if (part) {
+        errors.partNumber = "That Part Number already exists";
+        res.status(400).json(errors);
       }
+
+      //Save Part
+      new Part(partFields).save().then(part => res.json(part));
     });
   }
 );
 
-// @route   DELETE api/posts/:id
-// @desc    Delete post
-// @access  Private
-router.delete(
-  "/:id",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    Profile.findOne({ user: req.user.id }).then(profile => {
-      Post.findById(req.params.id)
-        .then(post => {
-          //Check for post owner
-          if (post.user.toString() !== req.user.id) {
-            return res
-              .status(401)
-              .json({ notauthorized: "User not authorized" });
-          }
-
-          //Delete
-          post.remove().then(() => res.json({ success: "true" }));
-        })
-        .catch(err => res.status(404).json({ postnotfound: "Post not found" }));
-    });
-  }
-);
+//TODO: Delete Part
 
 module.exports = router;

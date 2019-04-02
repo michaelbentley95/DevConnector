@@ -26,6 +26,8 @@ import Profiles from "./components/profiles/Profiles";
 import Profile from "./components/profile/Profile";
 import Posts from "./components/posts/Posts";
 import Post from "./components/post/Post";
+import Parts from "./components/parts/Parts";
+import CreatePart from "./components/parts/CreatePart";
 import NotFound from "./components/not-found/NotFound";
 
 import "./App.css";
@@ -69,6 +71,10 @@ class App extends Component {
               />
               <Route exact path="/profiles" component={Profiles} />
               <Route exact path="/profile/:handle" component={Profile} />
+              <Route exact path="/parts" component={Parts} />
+              <Switch>
+                <PrivateRoute exact path="/createPart" component={CreatePart} />
+              </Switch>
               <Switch>
                 <PrivateRoute exact path="/dashboard" component={Dashboard} />
               </Switch>
